@@ -40,9 +40,6 @@ const PDFEngine = {
 
     /**
      * Parses a page range string (e.g., "1-3, 5") into zero-based indices.
-     * @param {string} rangeStr - User input string
-     * @param {number} totalPages - Total pages in document
-     * @returns {number[]} Array of zero-based page indices
      */
     parsePageIndices(rangeStr, totalPages) {
         const indices = new Set();
@@ -93,7 +90,6 @@ const PDFEngine = {
    ======================================================================== */
 
 // --- Icons ---
-// Encapsulated to keep JSX clean. Using SVG paths directly.
 const Icon = ({ path, className = "w-5 h-5", spin = false }) => (
     <svg 
         xmlns="http://www.w3.org/2000/svg" 
@@ -113,7 +109,7 @@ const Icons = {
     Upload: (p) => <Icon {...p} path="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />,
     Download: (p) => <Icon {...p} path="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
     Layers: (p) => <Icon {...p} path="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
-    Scissors: (p) => <Icon {...p} path="M6 9l6 6 6-6" />, // Simplified scissor rep
+    Scissors: (p) => <Icon {...p} path="M6 9l6 6 6-6" />, 
     Trash: (p) => <Icon {...p} path="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />,
     Plus: (p) => <Icon {...p} path="M12 5v14M5 12h14" />,
     ChevronUp: (p) => <Icon {...p} path="M18 15l-6-6-6 6" />,
@@ -241,14 +237,15 @@ const MergeFeature = ({ isReady }) => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800">Merge Workspace</h2>
-                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5") to extract specific pages.</p>
+                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5").</p>
                 </div>
                 <div className="flex gap-3">
-                    <label className="relative">
-                        <Button variant="secondary" disabled={!isReady || status === 'processing'}>
+                    <label className={`relative cursor-pointer ${(!isReady || status === 'processing') ? 'opacity-50 pointer-events-none' : ''}`}>
+                        {/* We use a DIV styled as a button, not a BUTTON tag, to ensure the click hits the file input */}
+                        <div className="px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-200 hover:border-primary-500 hover:text-primary-600 shadow-sm active:scale-[0.98]">
                             <Icons.Plus className="w-4 h-4" /> Add Files
-                        </Button>
-                        <input type="file" multiple accept=".pdf" className="hidden" onChange={handleUpload} disabled={!isReady} />
+                        </div>
+                        <input type="file" multiple accept=".pdf" className="hidden" onChange={handleUpload} disabled={!isReady || status === 'processing'} />
                     </label>
                     {files.length > 0 && (
                         <Button variant="primary" onClick={handleMerge} isLoading={status === 'processing'}>
