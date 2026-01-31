@@ -18,7 +18,8 @@
                 <h2 style="font-weight:bold;margin-bottom:10px">System Error</h2>
                 <p><strong>Message:</strong> ${message}</p>
                 <p><strong>Location:</strong> Line ${lineno}</p>
-                <p><strong>Hint:</strong> If the error mentions "SyntaxError" or "<", you likely pasted HTML code inside the JSX file again.</p>
+                <p><strong>Browser:</strong> ${navigator.userAgent}</p>
+                <p><strong>Hint:</strong> If you are running this file directly on your computer (file://), Chrome blocks it for security. You must upload it to GitHub or use the Single-File version.</p>
             `;
             if(root) root.appendChild(errDiv);
             else document.body.appendChild(errDiv);
@@ -45,7 +46,9 @@
 <body>
     <div id="root"></div>
 
-    <!-- 5. LOAD APP (Added ?v=2 to force refresh) -->
-    <script type="text/babel" src="PDFMasterTool.jsx?v=2"></script>
+    <!-- 5. LOAD APP -->
+    <!-- Updated to v=3 to force Chrome to drop the cache -->
+    <!-- data-presets="react" helps Chrome identify the JSX syntax faster -->
+    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=3"></script>
 </body>
 </html>
