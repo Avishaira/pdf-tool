@@ -5,7 +5,7 @@
  */
 
 // Global Scope Variables (Provided by scripts in index.html)
-const { useState, useEffect, useCallback, useMemo } = React;
+const { useState, useEffect, useCallback, useMemo, useRef } = React;
 
 /* ========================================================================
    1. DOMAIN LAYER (Business Logic & Services)
@@ -178,6 +178,7 @@ const Badge = ({ children, type = 'neutral' }) => {
 const MergeFeature = ({ isReady }) => {
     const [files, setFiles] = useState([]);
     const [status, setStatus] = useState('idle');
+    const fileInputRef = useRef(null);
 
     const handleUpload = async (e) => {
         const newFiles = Array.from(e.target.files);
@@ -237,12 +238,19 @@ const MergeFeature = ({ isReady }) => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800">Merge Workspace</h2>
-                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5").</p>
+                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5") to extract specific pages.</p>
                 </div>
                 <div className="flex gap-3">
-                    <label className={`font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98] px-5 py-2.5 text-sm bg-white text-slate-700 border border-slate-200 hover:border-primary-500 hover:text-primary-600 cursor-pointer ${(!isReady || status === 'processing') ? 'opacity-50 pointer-events-none bg-slate-50' : ''}`}>
-                        <Icons.Plus className="w-4 h-4" /> Add Files
+                    <div className="relative">
+                        <Button 
+                            variant="secondary" 
+                            disabled={!isReady || status === 'processing'}
+                            onClick={() => fileInputRef.current && fileInputRef.current.click()}
+                        >
+                            <Icons.Plus className="w-4 h-4" /> Add Files
+                        </Button>
                         <input 
+                            ref={fileInputRef}
                             type="file" 
                             multiple 
                             accept=".pdf" 
@@ -250,7 +258,7 @@ const MergeFeature = ({ isReady }) => {
                             onChange={handleUpload} 
                             disabled={!isReady || status === 'processing'} 
                         />
-                    </label>
+                    </div>
                     {files.length > 0 && (
                         <Button variant="primary" onClick={handleMerge} isLoading={status === 'processing'}>
                             <Icons.Layers className="w-4 h-4" /> Merge PDF
