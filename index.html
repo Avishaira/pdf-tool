@@ -4,56 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Master | Professional Client-Side Tools</title>
-    <meta name="description" content="Secure, serverless PDF manipulation. Merge, split, and organize documents entirely within your browser.">
     
-    <!-- Dynamic Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
-
-    <!-- 1. Design System: Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 1. CRASH REPORTER (Prints errors to screen instead of blank white) -->
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] },
-                    colors: { 
-                        primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' },
-                        slate: { 850: '#1e293b' }
-                    },
-                    animation: { 'fade-in': 'fadeIn 0.4s ease-out' },
-                    keyframes: { fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } } }
-                }
-            }
-        }
+        window.onerror = function(message, source, lineno, colno, error) {
+            const root = document.getElementById('root');
+            const errDiv = document.createElement('div');
+            errDiv.style.padding = "20px";
+            errDiv.style.fontFamily = "monospace";
+            errDiv.style.backgroundColor = "#fee2e2";
+            errDiv.style.color = "#991b1b";
+            errDiv.innerHTML = `
+                <h2 style="font-weight:bold;margin-bottom:10px">System Error</h2>
+                <p><strong>Message:</strong> ${message}</p>
+                <p><strong>Location:</strong> Line ${lineno}</p>
+                <p><strong>Hint:</strong> If the error mentions "SyntaxError" or "<", you likely pasted HTML code inside the JSX file again.</p>
+            `;
+            if(root) root.appendChild(errDiv);
+            else document.body.appendChild(errDiv);
+        };
     </script>
 
-    <!-- 2. React Runtime (Global) -->
+    <!-- 2. Design System -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }, slate: { 850: '#1e293b' } } } } }
+    </script>
+
+    <!-- 3. React Runtime -->
     <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
-    
-    <!-- 3. Babel (Compiles JSX in the browser) -->
     <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
 
-    <!-- 4. Domain Engines (PDF & ZIP) -->
+    <!-- 4. Engines -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body { background-color: #F8FAFC; color: #0f172a; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    </style>
+    <style>body { background-color: #F8FAFC; color: #0f172a; font-family: 'Inter', sans-serif; }</style>
 </head>
 <body>
     <div id="root"></div>
 
-    <!-- 5. LOAD APPLICATION LOGIC -->
-    <!-- type="text/babel" tells the browser to use the Babel script loaded above to compile this file -->
-    <script type="text/babel" src="PDFMasterTool.jsx"></script>
+    <!-- 5. LOAD APP (Added ?v=2 to force refresh) -->
+    <script type="text/babel" src="PDFMasterTool.jsx?v=2"></script>
 </body>
 </html>
