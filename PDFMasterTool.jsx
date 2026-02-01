@@ -1,7 +1,11 @@
 /**
- * PDF Master Tool
+ * PDF Master Tool - Ultimate Edition
  * ------------------------------------------------------------------
- * A serverless, client-side React application for PDF manipulation.
+ * Architecture:
+ * 1. Domain Layer (PDFEngine): Pure functions for binary manipulation.
+ * 2. UI Layer (Components): Reusable, presentational components (Card, Badge, Button).
+ * 3. Feature Layer (Merge/Split): Smart components managing business logic.
+ * 4. App Layer: Layout and routing with Ad slots.
  */
 
 // Global Scope Variables (Provided by scripts in index.html)
@@ -14,8 +18,6 @@ const { useState, useEffect, useCallback, useMemo, useRef } = React;
 const PDFEngine = {
     /**
      * Converts a File object into a processed internal format.
-     * @param {File} file 
-     * @returns {Promise<Object>} Processed file metadata and buffer
      */
     async loadFile(file) {
         try {
@@ -40,9 +42,6 @@ const PDFEngine = {
 
     /**
      * Parses a page range string (e.g., "1-3, 5") into zero-based indices.
-     * @param {string} rangeStr - User input string
-     * @param {number} totalPages - Total pages in document
-     * @returns {number[]} Array of zero-based page indices
      */
     parsePageIndices(rangeStr, totalPages) {
         const indices = new Set();
@@ -93,7 +92,6 @@ const PDFEngine = {
    ======================================================================== */
 
 // --- Icons ---
-// Encapsulated to keep JSX clean. Using SVG paths directly.
 const Icon = ({ path, className = "w-5 h-5", spin = false }) => (
     <svg 
         xmlns="http://www.w3.org/2000/svg" 
@@ -113,7 +111,7 @@ const Icons = {
     Upload: (p) => <Icon {...p} path="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />,
     Download: (p) => <Icon {...p} path="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
     Layers: (p) => <Icon {...p} path="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
-    Scissors: (p) => <Icon {...p} path="M6 9l6 6 6-6" />, // Simplified scissor rep
+    Scissors: (p) => <Icon {...p} path="M6 9l6 6 6-6" />, 
     Trash: (p) => <Icon {...p} path="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />,
     Plus: (p) => <Icon {...p} path="M12 5v14M5 12h14" />,
     ChevronUp: (p) => <Icon {...p} path="M18 15l-6-6-6 6" />,
@@ -125,7 +123,7 @@ const Icons = {
 
 // --- Atoms ---
 
-const Button = ({ children, variant = 'primary', size = 'md', isLoading, disabled, className = '', ...props }) => {
+const Button = ({ children, variant = 'primary', size = 'md', isLoading, disabled, className = '', onClick, ...props }) => {
     const baseClass = "font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]";
     
     const variants = {
@@ -145,6 +143,7 @@ const Button = ({ children, variant = 'primary', size = 'md', isLoading, disable
         <button 
             className={`${baseClass} ${variants[variant]} ${sizes[size]} ${className}`}
             disabled={disabled || isLoading}
+            onClick={onClick}
             {...props}
         >
             {isLoading ? <Icons.Loader className="w-4 h-4" /> : children}
@@ -242,7 +241,7 @@ const MergeFeature = ({ isReady }) => {
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <div>
                     <h2 className="text-2xl font-bold text-slate-800">Merge Workspace</h2>
-                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5").</p>
+                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5") to extract specific pages.</p>
                 </div>
                 <div className="flex gap-3">
                     <div className="relative">
@@ -500,6 +499,11 @@ const App = () => {
                 {/* Main Content Column */}
                 <div className="flex flex-col min-w-0 w-full">
                     
+                    {/* Mobile Top Ad Placeholder */}
+                    <div className="lg:hidden w-full h-[100px] bg-slate-100 border border-dashed border-slate-300 rounded-xl mb-6 flex items-center justify-center text-slate-400 text-xs">
+                        Google Ad (Mobile)
+                    </div>
+
                     {/* Brand Header */}
                     <header className="text-center mb-10">
                         <div className="inline-flex p-4 bg-primary-600 rounded-2xl shadow-xl shadow-primary-200 mb-6 transform hover:scale-105 transition-transform duration-300">
@@ -540,6 +544,11 @@ const App = () => {
                         }
                     </Card>
 
+                    {/* Mobile Bottom Ad Placeholder */}
+                    <div className="lg:hidden w-full h-[250px] bg-slate-100 border border-dashed border-slate-300 rounded-xl mb-8 flex items-center justify-center text-slate-400 text-xs">
+                        Google Ad (Mobile Rect)
+                    </div>
+
                     {/* Footer / Status Bar */}
                     <footer className="text-center pb-8 flex flex-col items-center gap-4">
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
@@ -548,7 +557,6 @@ const App = () => {
                             </Badge>
                             <span className="text-xs text-slate-400 font-medium ml-2">v2.0.0 Stable</span>
                         </div>
-                        
                         <div className="text-xs text-slate-400">
                             &copy; {new Date().getFullYear()} PDF Master. Engineered for privacy.
                             <span className="mx-2">•</span>
