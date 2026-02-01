@@ -1,59 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="antialiased">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Legal & Privacy - PDF Master</title>
+    <title>PDF Master | Professional Client-Side Tools</title>
+    
+    <!-- 1. CRASH REPORTER (Helps debug blank screens) -->
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            const root = document.getElementById('root');
+            const errDiv = document.createElement('div');
+            errDiv.style.cssText = "padding: 20px; font-family: monospace; background-color: #fee2e2; color: #991b1b; margin: 20px; border-radius: 8px;";
+            errDiv.innerHTML = `<strong>System Error:</strong> ${message}<br>Location: Line ${lineno}`;
+            if(root) root.prepend(errDiv);
+        };
+    </script>
+
+    <!-- 2. Tailwind CSS (Styling) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; color: #334155; }
-        h1 { font-size: 2rem; font-weight: 800; color: #0f172a; margin-bottom: 1rem; }
-        h2 { font-size: 1.25rem; font-weight: 700; color: #1e293b; margin-top: 2rem; margin-bottom: 0.5rem; }
-        p { margin-bottom: 1rem; line-height: 1.6; }
-        ul { list-style-type: disc; margin-left: 1.5rem; margin-bottom: 1rem; }
-        a { color: #4f46e5; text-decoration: underline; }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }, slate: { 850: '#1e293b' } } } } }
+    </script>
+
+    <!-- 3. React Framework -->
+    <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
+
+    <!-- 4. PDF Engines -->
+    <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+    <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <!-- 5. Cookie Consent (Required for AdSense) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.css">
+    <script src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.js"></script>
+    <script>
+        window.addEventListener('load', function(){
+            var cc = initCookieConsent();
+            cc.run({
+                current_lang: 'en',
+                autoclear_cookies: true,
+                page_scripts: true,
+                gui_options: { consent_modal: { layout: 'cloud', position: 'bottom center', transition: 'slide' } },
+                languages: {
+                    en: {
+                        consent_modal: {
+                            title: 'We use cookies',
+                            description: 'We use cookies to analyse our traffic and serve personalized ads. <button type="button" data-cc="c-settings" class="cc-link">Manage preferences</button>',
+                            primary_btn: { text: 'Accept all', role: 'accept_all' },
+                            secondary_btn: { text: 'Reject all', role: 'accept_necessary' }
+                        },
+                        settings_modal: {
+                            title: 'Cookie preferences',
+                            save_settings_btn: 'Save settings',
+                            accept_all_btn: 'Accept all',
+                            blocks: [
+                                { title: 'Cookie usage', description: 'We use cookies to ensure the basic functionalities of the website and to enhance your online experience.' },
+                                { title: 'Strictly necessary cookies', description: 'Essential for the site to function.', toggle: { value: 'necessary', enabled: true, readonly: true } },
+                                { title: 'Analytics & Ads', description: 'Used by Google Analytics and AdSense.', toggle: { value: 'analytics', enabled: false, readonly: false } }
+                            ]
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+    <style>body { background-color: #F8FAFC; color: #0f172a; font-family: sans-serif; }</style>
 </head>
-<body class="p-6 md:p-12 max-w-3xl mx-auto">
-
-    <header class="mb-12 border-b border-slate-200 pb-8">
-        <a href="index.html" class="no-underline text-slate-500 hover:text-slate-800 mb-4 inline-block font-semibold transition-colors">&larr; Back to Tool</a>
-        <h1>Legal Information & Privacy Policy</h1>
-        <p class="text-sm text-slate-400">Last Updated: February 2026</p>
-    </header>
-
-    <section>
-        <h2>1. The "Serverless" Promise (Privacy)</h2>
-        <p>PDF Master operates on a <strong>client-side basis</strong>. This is a crucial distinction from other online tools:</p>
-        <ul>
-            <li>Your files are processed <strong>entirely within your web browser</strong> using WebAssembly technology.</li>
-            <li>Your documents are <strong>NEVER</strong> uploaded to our servers. We technically cannot see them.</li>
-            <li>Once you close the tab, all data regarding your session is wiped from your browser's memory.</li>
-        </ul>
-
-        <h2>2. Data Collection (Cookies & Analytics)</h2>
-        <p>While we do not collect your documents, we use third-party services to keep this tool free and functional:</p>
-        <ul>
-            <li><strong>Google Analytics:</strong> We collect anonymous, aggregated data about traffic (e.g., "100 visitors today") to understand site performance.</li>
-            <li><strong>Google AdSense:</strong> We display advertisements. Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to this website or other websites.</li>
-        </ul>
-        <p>You can opt-out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank">Google Ads Settings</a>.</p>
-
-        <h2>3. Terms of Service</h2>
-        <p>By using PDF Master, you agree to the following:</p>
-        <ul>
-            <li><strong>"As Is" Warranty:</strong> This service is provided free of charge. We are not responsible for any data loss, formatting errors, or issues resulting from the use of this tool. Always verify your output files.</li>
-            <li><strong>Lawful Use:</strong> You agree not to use this service for any illegal purposes or to manipulate documents you do not have the right to edit.</li>
-        </ul>
-
-        <h2>4. Contact</h2>
-        <p>If you have any questions regarding this policy, please contact the repository owner via GitHub.</p>
-    </section>
-
-    <footer class="mt-12 pt-8 border-t border-slate-200 text-center text-sm text-slate-400">
-        &copy; 2026 PDF Master. All rights reserved.
-    </footer>
-
+<body>
+    <div id="root"></div>
+    
+    <!-- 6. Load the Application Logic -->
+    <!-- ?v=6 forces the browser to re-download the script if it cached an old version -->
+    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=6"></script>
 </body>
 </html>
