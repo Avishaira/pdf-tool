@@ -5,20 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Master | Professional Client-Side Tools</title>
     
-    <!-- ================================================================= -->
-    <!-- GOOGLE ANALYTICS START (מעודכן עם המזהה שלך) -->
+    <!-- 1. GOOGLE ANALYTICS (Unblocked Mode) -->
+    <!-- This is placed first to ensure tracking works immediately -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-VNCBWFXZ8T"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'G-VNCBWFXZ8T');
+        gtag('config', 'G-VNCBWFXZ8T', {
+            'debug_mode': true
+        });
     </script>
-    <!-- GOOGLE ANALYTICS END -->
-    <!-- ================================================================= -->
 
-    <!-- Crash Reporter -->
+    <!-- 2. GOOGLE ADSENSE -->
+    <!-- Placeholder ID included. Updates automatically when your account is approved -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+    <!-- 3. Crash Reporter -->
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             const root = document.getElementById('root');
@@ -29,23 +33,16 @@
         };
     </script>
 
-    <!-- 1. Tailwind CSS -->
+    <!-- 4. Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }, slate: { 850: '#1e293b' } } } } }
     </script>
-
-    <!-- 2. React Framework -->
     <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
-
-    <!-- 3. PDF Engines -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
-
-    <!-- 4. Google AdSense Placeholder (תצטרך להוסיף את המזהה שלך כאן כשיאושר החשבון) -->
-    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
 
     <!-- 5. Cookie Consent -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.css">
@@ -62,19 +59,15 @@
                     en: {
                         consent_modal: {
                             title: 'We use cookies',
-                            description: 'We use cookies to analyse our traffic and serve personalized ads.',
+                            description: 'We use cookies to analyze traffic and serve ads.',
                             primary_btn: { text: 'Accept all', role: 'accept_all' },
-                            secondary_btn: { text: 'Reject all', role: 'accept_necessary' }
+                            secondary_btn: { text: 'Reject', role: 'accept_necessary' }
                         },
                         settings_modal: {
-                            title: 'Cookie preferences',
-                            save_settings_btn: 'Save settings',
+                            title: 'Settings',
+                            save_settings_btn: 'Save',
                             accept_all_btn: 'Accept all',
-                            blocks: [
-                                { title: 'Cookie usage', description: 'We use cookies to ensure basic functionalities.' },
-                                { title: 'Strictly necessary cookies', description: 'Essential for the site to function.', toggle: { value: 'necessary', enabled: true, readonly: true } },
-                                { title: 'Analytics & Ads', description: 'Used by Google Analytics and AdSense.', toggle: { value: 'analytics', enabled: false, readonly: false } }
-                            ]
+                            blocks: [ { title: 'Usage', description: 'Basic cookies.' } ]
                         }
                     }
                 }
@@ -86,9 +79,7 @@
 </head>
 <body>
     <div id="root"></div>
-    
-    <!-- 6. Load the Application Logic -->
-    <!-- Version bumped to v=8 to force refresh -->
-    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=8"></script>
+    <!-- Version bump to 10 -->
+    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=10"></script>
 </body>
 </html>
