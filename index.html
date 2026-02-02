@@ -5,7 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Master | Professional Client-Side Tools</title>
     
-    <!-- 1. CRASH REPORTER (Helps debug blank screens) -->
+    <!-- ================================================================= -->
+    <!-- GOOGLE ANALYTICS START (מעודכן עם המזהה שלך) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VNCBWFXZ8T"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-VNCBWFXZ8T');
+    </script>
+    <!-- GOOGLE ANALYTICS END -->
+    <!-- ================================================================= -->
+
+    <!-- Crash Reporter -->
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
             const root = document.getElementById('root');
@@ -16,22 +29,25 @@
         };
     </script>
 
-    <!-- 2. Tailwind CSS (Styling) -->
+    <!-- 1. Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { theme: { extend: { colors: { primary: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' }, slate: { 850: '#1e293b' } } } } }
     </script>
 
-    <!-- 3. React Framework -->
+    <!-- 2. React Framework -->
     <script crossorigin src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
 
-    <!-- 4. PDF Engines -->
+    <!-- 3. PDF Engines -->
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 
-    <!-- 5. Cookie Consent (Required for AdSense) -->
+    <!-- 4. Google AdSense Placeholder (תצטרך להוסיף את המזהה שלך כאן כשיאושר החשבון) -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script> -->
+
+    <!-- 5. Cookie Consent -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.css">
     <script src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.js"></script>
     <script>
@@ -46,7 +62,7 @@
                     en: {
                         consent_modal: {
                             title: 'We use cookies',
-                            description: 'We use cookies to analyse our traffic and serve personalized ads. <button type="button" data-cc="c-settings" class="cc-link">Manage preferences</button>',
+                            description: 'We use cookies to analyse our traffic and serve personalized ads.',
                             primary_btn: { text: 'Accept all', role: 'accept_all' },
                             secondary_btn: { text: 'Reject all', role: 'accept_necessary' }
                         },
@@ -55,7 +71,7 @@
                             save_settings_btn: 'Save settings',
                             accept_all_btn: 'Accept all',
                             blocks: [
-                                { title: 'Cookie usage', description: 'We use cookies to ensure the basic functionalities of the website and to enhance your online experience.' },
+                                { title: 'Cookie usage', description: 'We use cookies to ensure basic functionalities.' },
                                 { title: 'Strictly necessary cookies', description: 'Essential for the site to function.', toggle: { value: 'necessary', enabled: true, readonly: true } },
                                 { title: 'Analytics & Ads', description: 'Used by Google Analytics and AdSense.', toggle: { value: 'analytics', enabled: false, readonly: false } }
                             ]
@@ -72,7 +88,7 @@
     <div id="root"></div>
     
     <!-- 6. Load the Application Logic -->
-    <!-- ?v=6 forces the browser to re-download the script if it cached an old version -->
-    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=6"></script>
+    <!-- Version bumped to v=8 to force refresh -->
+    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=8"></script>
 </body>
 </html>
