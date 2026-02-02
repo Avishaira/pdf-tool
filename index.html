@@ -5,19 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDF Master | Professional Client-Side Tools</title>
     
-    <!-- 1. GOOGLE ANALYTICS (עם כלי אבחון) -->
-    <!-- הוספתי בדיקה שמדווחת למסך אם גוגל נטען או נחסם -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VNCBWFXZ8T"
-        onload="document.getElementById('ga-debug').innerHTML='Analytics Status: <strong>Connected ✅</strong> (Sending data...)'; document.getElementById('ga-debug').style.backgroundColor='#dcfce7'; document.getElementById('ga-debug').style.color='#166534';"
-        onerror="document.getElementById('ga-debug').innerHTML='Analytics Status: <strong>Blocked ❌</strong> (Check AdBlock/Internet)'; document.getElementById('ga-debug').style.backgroundColor='#fee2e2'; document.getElementById('ga-debug').style.color='#991b1b';">
-    </script>
+    <!-- 1. GOOGLE ANALYTICS (Standard Official Code) -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-VNCBWFXZ8T"></script>
     <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-        // הסרתי את debug_mode כדי לוודא שזה עובד במצב רגיל
-        gtag('config', 'G-VNCBWFXZ8T');
+      gtag('config', 'G-VNCBWFXZ8T');
     </script>
 
     <!-- 2. GOOGLE ADSENSE -->
@@ -79,13 +75,9 @@
     <style>body { background-color: #F8FAFC; color: #0f172a; font-family: sans-serif; }</style>
 </head>
 <body>
-    <!-- סרגל אבחון זמני לבדיקת אנליטיקס -->
-    <div id="ga-debug" style="width: 100%; padding: 10px; text-align: center; background-color: #f3f4f6; color: #6b7280; font-family: monospace; font-size: 14px; border-bottom: 1px solid #e5e7eb;">
-        Analytics Status: Loading...
-    </div>
-
     <div id="root"></div>
-    <!-- Version bump to 11 -->
-    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=11"></script>
+    
+    <!-- 6. Load Application Logic -->
+    <script type="text/babel" data-presets="react" src="PDFMasterTool.jsx?v=12"></script>
 </body>
 </html>
