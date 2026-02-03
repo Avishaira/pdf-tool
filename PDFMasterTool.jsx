@@ -1,183 +1,135 @@
 /**
- * PDF Master Tool - Ultimate Edition
- * ------------------------------------------------------------------
- * Architecture:
- * 1. Domain Layer (PDFEngine): Pure functions for binary manipulation.
- * 2. UI Layer (Components): Reusable, presentational components (Card, Badge, Button).
- * 3. Feature Layer (Merge/Split): Smart components managing business logic.
- * 4. App Layer: Layout and routing with Ad slots.
+ * PDF Master Tool - Ultimate Edition (AdSense Ready)
  */
 
-// Global Scope Variables (Provided by scripts in index.html)
-const { useState, useEffect, useCallback, useMemo, useRef } = React;
+// Global Variables
+const { useState, useEffect, useCallback, useRef } = React;
+
+/* --- ADSENSE CONFIGURATION --- */
+// 1. הדבק כאן את המספר שלך (במקום ה-Xים)
+const AD_PUB_ID = "ca-pub-XXXXXXXXXXXXXXXX"; 
+
+// 2. מספרי ה-Slot (תוכל לעדכן אותם כשתקבל אותם מגוגל, כרגע השאר אותם כך)
+const AD_SLOT_SIDEBAR = "1234567890"; 
+const AD_SLOT_MOBILE  = "1234567890"; 
 
 /* ========================================================================
-   1. DOMAIN LAYER (Business Logic & Services)
+   1. DOMAIN LOGIC
    ======================================================================== */
-
 const PDFEngine = {
-    /**
-     * Converts a File object into a processed internal format.
-     */
     async loadFile(file) {
-        try {
-            const buffer = await file.arrayBuffer();
-            // 'ignoreEncryption' allows reading metadata even if password-protected
-            const doc = await window.PDFLib.PDFDocument.load(buffer, { ignoreEncryption: true });
-            
-            return {
-                id: crypto.randomUUID(),
-                originalFile: file,
-                name: file.name,
-                size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
-                pageCount: doc.getPageCount(),
-                buffer: buffer, // Keep in memory for processing
-                range: `1-${doc.getPageCount()}` // Default to all pages
-            };
-        } catch (error) {
-            console.error("PDFEngine Load Error:", error);
-            throw new Error(`Failed to parse "${file.name}". The file may be corrupted or encrypted.`);
-        }
+        const buffer = await file.arrayBuffer();
+        const doc = await window.PDFLib.PDFDocument.load(buffer, { ignoreEncryption: true });
+        return {
+            id: crypto.randomUUID(),
+            name: file.name,
+            size: (file.size / 1024 / 1024).toFixed(2) + ' MB',
+            pageCount: doc.getPageCount(),
+            buffer,
+            range: `1-${doc.getPageCount()}`
+        };
     },
-
-    /**
-     * Parses a page range string (e.g., "1-3, 5") into zero-based indices.
-     */
     parsePageIndices(rangeStr, totalPages) {
         const indices = new Set();
-        const parts = rangeStr.split(',');
-
-        parts.forEach(part => {
-            const cleanPart = part.trim();
-            if (cleanPart.includes('-')) {
-                let [start, end] = cleanPart.split('-').map(n => parseInt(n));
-                if (isNaN(start)) start = 1;
+        rangeStr.split(',').forEach(part => {
+            const clean = part.trim();
+            if (clean.includes('-')) {
+                let [start, end] = clean.split('-').map(n => parseInt(n));
+                if (isNaN(start)) start = 1; 
                 if (isNaN(end)) end = totalPages;
-                
-                // Clamp values to valid range
                 start = Math.max(1, start);
                 end = Math.min(totalPages, end);
-
-                if (start <= end) {
-                    for (let i = start; i <= end; i++) indices.add(i - 1);
-                }
+                if (start <= end) for (let i = start; i <= end; i++) indices.add(i - 1);
             } else {
-                const num = parseInt(cleanPart);
-                if (!isNaN(num) && num >= 1 && num <= totalPages) {
-                    indices.add(num - 1);
-                }
+                const num = parseInt(clean);
+                if (!isNaN(num) && num >= 1 && num <= totalPages) indices.add(num - 1);
             }
         });
-
         return Array.from(indices).sort((a, b) => a - b);
     },
-
-    /**
-     * Downloads a Blob to the user's device.
-     */
     triggerDownload(blob, filename) {
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
 };
 
 /* ========================================================================
-   2. UI COMPONENT LIBRARY (Atomic Design)
+   2. UI COMPONENTS & ADS
    ======================================================================== */
 
-// --- Icons ---
-const Icon = ({ path, className = "w-5 h-5", spin = false }) => (
-    <svg 
-        xmlns="http://www.w3.org/2000/svg" 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round" 
-        className={`${className} ${spin ? 'animate-spin' : ''}`}
-    >
-        <path d={path} />
+// Ad Unit Component
+const AdUnit = ({ slot, style, format = "auto" }) => {
+    useEffect(() => {
+        try {
+            if (AD_PUB_ID !== "ca-pub-XXXXXXXXXXXXXXXX") {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+            }
+        } catch (e) { console.log("AdSense error (normal if blocked):", e); }
+    }, []);
+
+    // Placeholder until real ID is set
+    if (AD_PUB_ID === "ca-pub-XXXXXXXXXXXXXXXX") {
+        return <div className="w-full h-full bg-slate-50 border border-dashed border-slate-300 flex items-center justify-center text-slate-400 text-xs font-mono p-2">Ad Space</div>;
+    }
+
+    return (
+        <ins className="adsbygoogle"
+             style={{ display: 'block', ...style }}
+             data-ad-client={AD_PUB_ID}
+             data-ad-slot={slot}
+             data-ad-format={format}
+             data-full-width-responsive="true"></ins>
+    );
+};
+
+const Icon = ({ d, spin }) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={`w-5 h-5 ${spin ? 'animate-spin' : ''}`}>
+        <path d={d} />
     </svg>
 );
 
 const Icons = {
-    Upload: (p) => <Icon {...p} path="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />,
-    Download: (p) => <Icon {...p} path="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
-    Layers: (p) => <Icon {...p} path="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
-    Scissors: (p) => <Icon {...p} path="M6 9l6 6 6-6" />, 
-    Trash: (p) => <Icon {...p} path="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />,
-    Plus: (p) => <Icon {...p} path="M12 5v14M5 12h14" />,
-    ChevronUp: (p) => <Icon {...p} path="M18 15l-6-6-6 6" />,
-    ChevronDown: (p) => <Icon {...p} path="M6 9l6 6 6-6" />,
-    Loader: (p) => <Icon {...p} spin path="M21 12a9 9 0 1 1-6.219-8.56" />,
-    Check: (p) => <Icon {...p} path="M20 6L9 17l-5-5" />,
-    X: (p) => <Icon {...p} path="M18 6L6 18M6 6l12 12" />
+    Plus: () => <Icon d="M12 5v14M5 12h14" />,
+    Layers: () => <Icon d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />,
+    Scissors: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8" y2="16"/><line x1="20" y1="20" x2="8" y2="8"/></svg>,
+    Trash: () => <Icon d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />,
+    Download: () => <Icon d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
+    Upload: () => <Icon d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12" />,
+    Loader: () => <Icon spin d="M21 12a9 9 0 1 1-6.219-8.56" />,
+    Up: () => <Icon d="M18 15l-6-6-6 6" />,
+    Down: () => <Icon d="M6 9l6 6 6-6" />,
+    X: () => <Icon d="M18 6L6 18M6 6l12 12" />
 };
 
-// --- Atoms ---
-
-const Button = ({ children, variant = 'primary', size = 'md', isLoading, disabled, className = '', onClick, ...props }) => {
-    const baseClass = "font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 active:scale-[0.98]";
-    
-    const variants = {
-        primary: "bg-primary-600 text-white shadow-lg shadow-primary-200 hover:bg-primary-700 disabled:bg-slate-300 disabled:shadow-none",
-        secondary: "bg-white text-slate-700 border border-slate-200 hover:border-primary-500 hover:text-primary-600 disabled:bg-slate-50",
-        ghost: "text-slate-400 hover:text-primary-600 hover:bg-primary-50",
-        danger: "text-red-400 hover:text-red-600 hover:bg-red-50"
+const Button = ({ children, variant = 'primary', disabled, onClick, className = '' }) => {
+    const base = "px-4 py-2.5 rounded-xl font-bold text-sm flex items-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed";
+    const styles = {
+        primary: "bg-primary-600 text-white shadow-lg hover:bg-primary-700",
+        secondary: "bg-white text-slate-700 border border-slate-200 hover:border-primary-500 hover:text-primary-600",
+        danger: "text-red-400 hover:text-red-600 hover:bg-red-50 p-2",
+        ghost: "text-slate-400 hover:text-primary-600 p-1"
     };
-    
-    const sizes = {
-        sm: "px-3 py-1.5 text-xs",
-        md: "px-5 py-2.5 text-sm",
-        lg: "px-6 py-3.5 text-base"
-    };
-
-    return (
-        <button 
-            className={`${baseClass} ${variants[variant]} ${sizes[size]} ${className}`}
-            disabled={disabled || isLoading}
-            onClick={onClick}
-            {...props}
-        >
-            {isLoading ? <Icons.Loader className="w-4 h-4" /> : children}
-        </button>
-    );
+    return <button onClick={onClick} disabled={disabled} className={`${base} ${styles[variant]} ${className}`}>{children}</button>;
 };
 
 const Card = ({ children, className = '' }) => (
-    <div className={`bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden ${className}`}>
-        {children}
-    </div>
+    <div className={`bg-white border border-slate-100 rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden ${className}`}>{children}</div>
 );
 
 const Badge = ({ children, type = 'neutral' }) => {
-    const styles = {
-        neutral: "bg-slate-100 text-slate-500",
-        success: "bg-green-100 text-green-700",
-        error: "bg-red-100 text-red-700",
-        loading: "bg-primary-100 text-primary-700"
-    };
-    return (
-        <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono ${styles[type]}`}>
-            {children}
-        </span>
-    );
+    const styles = { neutral: "bg-slate-100 text-slate-500", success: "bg-green-100 text-green-700", loading: "bg-primary-100 text-primary-700" };
+    return <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold font-mono ${styles[type]}`}>{children}</span>;
 };
 
 /* ========================================================================
-   3. FEATURE LAYER (Complex Logic Components)
+   3. FEATURES
    ======================================================================== */
 
-/**
- * MergeFeature: Handles combining multiple PDFs into one.
- */
 const MergeFeature = ({ isReady }) => {
     const [files, setFiles] = useState([]);
     const [status, setStatus] = useState('idle');
@@ -185,134 +137,81 @@ const MergeFeature = ({ isReady }) => {
 
     const handleUpload = async (e) => {
         const newFiles = Array.from(e.target.files);
-        if (newFiles.length === 0) return;
-
+        if (!newFiles.length) return;
         setStatus('processing');
         try {
             const processed = await Promise.all(newFiles.map(PDFEngine.loadFile));
-            setFiles(prev => [...prev, ...processed]);
+            setFiles(p => [...p, ...processed]);
             setStatus('idle');
-        } catch (err) {
-            alert(err.message);
-            setStatus('error');
-        }
+        } catch (e) { alert("Error reading file"); setStatus('error'); }
         e.target.value = '';
     };
 
     const handleMerge = async () => {
-        if (files.length === 0) return;
+        if (!files.length) return;
         setStatus('processing');
-
         try {
-            const mergedPdf = await window.PDFLib.PDFDocument.create();
-            
-            for (const fileData of files) {
-                const srcDoc = await window.PDFLib.PDFDocument.load(fileData.buffer, { ignoreEncryption: true });
-                const indices = PDFEngine.parsePageIndices(fileData.range, fileData.pageCount);
-                
-                if (indices.length > 0) {
-                    const copiedPages = await mergedPdf.copyPages(srcDoc, indices);
-                    copiedPages.forEach(p => mergedPdf.addPage(p));
+            const merged = await window.PDFLib.PDFDocument.create();
+            for (const f of files) {
+                const src = await window.PDFLib.PDFDocument.load(f.buffer, { ignoreEncryption: true });
+                const indices = PDFEngine.parsePageIndices(f.range, f.pageCount);
+                if (indices.length) {
+                    const pgs = await merged.copyPages(src, indices);
+                    pgs.forEach(p => merged.addPage(p));
                 }
             }
-            
-            const pdfBytes = await mergedPdf.save();
-            PDFEngine.triggerDownload(new Blob([pdfBytes], { type: 'application/pdf' }), 'merged_document.pdf');
+            PDFEngine.triggerDownload(await merged.save(), 'merged.pdf');
             setStatus('idle');
-        } catch (error) {
-            console.error(error);
-            alert("An error occurred during the merge process.");
-            setStatus('error');
-        }
+        } catch (e) { alert("Merge failed"); setStatus('error'); }
     };
 
-    const reorderFile = (index, direction) => {
-        const newFiles = [...files];
-        if (direction === -1 && index > 0) {
-            [newFiles[index], newFiles[index - 1]] = [newFiles[index - 1], newFiles[index]];
-        } else if (direction === 1 && index < newFiles.length - 1) {
-            [newFiles[index], newFiles[index + 1]] = [newFiles[index + 1], newFiles[index]];
-        }
-        setFiles(newFiles);
+    const move = (idx, dir) => {
+        const arr = [...files];
+        if (dir === -1 && idx > 0) [arr[idx], arr[idx-1]] = [arr[idx-1], arr[idx]];
+        else if (dir === 1 && idx < arr.length-1) [arr[idx], arr[idx+1]] = [arr[idx+1], arr[idx]];
+        setFiles(arr);
     };
 
     return (
-        <div className="p-6 md:p-10 animate-fade-in">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                <div>
-                    <h2 className="text-2xl font-bold text-slate-800">Merge Workspace</h2>
-                    <p className="text-slate-500">Drag to reorder. Edit page ranges (e.g., "1-3, 5") to extract specific pages.</p>
-                </div>
-                <div className="flex gap-3">
-                    <div className="relative">
-                        <Button 
-                            variant="secondary" 
-                            disabled={!isReady || status === 'processing'}
-                            onClick={() => fileInputRef.current && fileInputRef.current.click()}
-                        >
-                            <Icons.Plus className="w-4 h-4" /> Add Files
+        <div className="p-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <h2 className="text-xl font-bold text-slate-800">Merge Workspace</h2>
+                <div className="flex gap-2 w-full md:w-auto">
+                    <div className="relative flex-1 md:flex-none">
+                        <Button variant="secondary" className="w-full justify-center" disabled={!isReady || status === 'processing'} onClick={() => fileInputRef.current.click()}>
+                            <Icons.Plus /> Add Files
                         </Button>
-                        <input 
-                            ref={fileInputRef}
-                            type="file" 
-                            multiple 
-                            accept=".pdf" 
-                            className="hidden" 
-                            onChange={handleUpload} 
-                            disabled={!isReady || status === 'processing'} 
-                        />
+                        <input ref={fileInputRef} type="file" multiple accept=".pdf" className="hidden" onChange={handleUpload} />
                     </div>
                     {files.length > 0 && (
-                        <Button variant="primary" onClick={handleMerge} isLoading={status === 'processing'}>
-                            <Icons.Layers className="w-4 h-4" /> Merge PDF
+                        <Button variant="primary" className="flex-1 md:flex-none justify-center" onClick={handleMerge} disabled={status === 'processing'}>
+                            {status === 'processing' ? <Icons.Loader /> : <Icons.Layers />} Merge PDF
                         </Button>
                     )}
                 </div>
             </div>
-
+            
             {files.length === 0 ? (
-                <div className="border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center bg-slate-50/50">
-                    <div className="w-16 h-16 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-4">
-                        <Icons.Upload className="w-8 h-8 text-slate-300" />
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-700">No files selected</h3>
-                    <p className="text-slate-500">Upload PDF documents to begin</p>
+                <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl">
+                    <div className="text-slate-300 mb-2 flex justify-center"><div className="w-12 h-12"><Icons.Upload /></div></div>
+                    <p className="text-slate-500 font-medium">No files selected</p>
                 </div>
             ) : (
                 <div className="space-y-3">
-                    {files.map((file, idx) => (
-                        <div key={file.id} className="group bg-white border border-slate-200 p-4 rounded-xl flex items-center gap-4 transition-all hover:border-primary-200 hover:shadow-md">
-                            <div className="flex flex-col gap-1">
-                                <button onClick={() => reorderFile(idx, -1)} disabled={idx === 0} className="text-slate-300 hover:text-primary-600 disabled:opacity-0 transition-opacity"><Icons.ChevronUp className="w-4 h-4" /></button>
-                                <span className="text-xs font-mono font-bold text-slate-400 text-center">{idx + 1}</span>
-                                <button onClick={() => reorderFile(idx, 1)} disabled={idx === files.length - 1} className="text-slate-300 hover:text-primary-600 disabled:opacity-0 transition-opacity"><Icons.ChevronDown className="w-4 h-4" /></button>
+                    {files.map((f, i) => (
+                        <div key={f.id} className="bg-white border border-slate-200 p-3 rounded-xl flex items-center gap-4">
+                            <div className="flex flex-col">
+                                <Button variant="ghost" onClick={() => move(i, -1)} disabled={i===0}><Icons.Up /></Button>
+                                <Button variant="ghost" onClick={() => move(i, 1)} disabled={i===files.length-1}><Icons.Down /></Button>
                             </div>
-                            
-                            <div className="flex-1 min-w-0">
-                                <h4 className="font-bold text-slate-700 truncate">{file.name}</h4>
-                                <div className="text-xs text-slate-500 flex gap-2">
-                                    <span>{file.pageCount} Pages</span>
-                                    <span>•</span>
-                                    <span>{file.size}</span>
-                                </div>
+                            <div className="flex-1 overflow-hidden">
+                                <div className="font-bold truncate">{f.name}</div>
+                                <div className="text-xs text-slate-500">{f.pageCount} Pages • {f.size}</div>
                             </div>
-
-                            <div className="w-full md:w-48">
-                                <label className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mb-1 block">Page Range</label>
-                                <input 
-                                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-medium text-slate-700 focus:ring-2 focus:ring-primary-500 outline-none transition-shadow"
-                                    value={file.range}
-                                    onChange={(e) => {
-                                        const updated = [...files];
-                                        updated[idx].range = e.target.value;
-                                        setFiles(updated);
-                                    }}
-                                />
-                            </div>
-
-                            <Button variant="danger" size="sm" onClick={() => setFiles(files.filter(f => f.id !== file.id))}>
-                                <Icons.Trash className="w-4 h-4" />
-                            </Button>
+                            <input className="w-24 p-2 border rounded-lg text-sm" value={f.range} onChange={e => {
+                                const n = [...files]; n[i].range = e.target.value; setFiles(n);
+                            }} />
+                            <Button variant="danger" onClick={() => setFiles(files.filter((_, x) => x !== i))}><Icons.Trash /></Button>
                         </div>
                     ))}
                 </div>
@@ -321,146 +220,94 @@ const MergeFeature = ({ isReady }) => {
     );
 };
 
-/**
- * SplitFeature: Handles bursting or extracting ranges from a single PDF.
- */
 const SplitFeature = ({ isReady }) => {
-    const [activeFile, setActiveFile] = useState(null);
-    const [ranges, setRanges] = useState([{ id: 1, val: '' }]);
+    const [file, setFile] = useState(null);
+    const [ranges, setRanges] = useState([{id: 1, val: ''}]);
     const [status, setStatus] = useState('idle');
 
     const handleUpload = async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
+        if (!e.target.files[0]) return;
         setStatus('processing');
         try {
-            const processed = await PDFEngine.loadFile(file);
-            setActiveFile(processed);
-            setRanges([{ id: 1, val: `1-${processed.pageCount}` }]);
+            const f = await PDFEngine.loadFile(e.target.files[0]);
+            setFile(f);
+            setRanges([{id: 1, val: `1-${f.pageCount}`}]);
             setStatus('idle');
-        } catch (err) {
-            alert(err.message);
-            setStatus('error');
-        }
+        } catch(e) { alert("Error reading file"); setStatus('error'); }
         e.target.value = '';
     };
 
     const handleSplit = async (mode) => {
-        if (!activeFile) return;
+        if (!file) return;
         setStatus('processing');
-
         try {
-            const srcDoc = await window.PDFLib.PDFDocument.load(activeFile.buffer, { ignoreEncryption: true });
+            const src = await window.PDFLib.PDFDocument.load(file.buffer, { ignoreEncryption: true });
             const zip = new window.JSZip();
-            const baseName = activeFile.name.replace(/\.pdf$/i, '');
+            const name = file.name.replace(/\.pdf$/i, '');
 
             if (mode === 'burst') {
-                for (let i = 0; i < activeFile.pageCount; i++) {
-                    const newDoc = await window.PDFLib.PDFDocument.create();
-                    const [copied] = await newDoc.copyPages(srcDoc, [i]);
-                    newDoc.addPage(copied);
-                    const pdfBytes = await newDoc.save();
-                    zip.file(`${baseName}_page_${i + 1}.pdf`, pdfBytes);
+                for (let i = 0; i < file.pageCount; i++) {
+                    const d = await window.PDFLib.PDFDocument.create();
+                    const [p] = await d.copyPages(src, [i]);
+                    d.addPage(p);
+                    zip.file(`${name}_page_${i+1}.pdf`, await d.save());
                 }
             } else {
-                for (const range of ranges) {
-                    const indices = PDFEngine.parsePageIndices(range.val, activeFile.pageCount);
-                    if (indices.length > 0) {
-                        const newDoc = await window.PDFLib.PDFDocument.create();
-                        const copied = await newDoc.copyPages(srcDoc, indices);
-                        copied.forEach(p => newDoc.addPage(p));
-                        const pdfBytes = await newDoc.save();
-                        zip.file(`${baseName}_split_${range.id}.pdf`, pdfBytes);
+                for (const r of ranges) {
+                    const idxs = PDFEngine.parsePageIndices(r.val, file.pageCount);
+                    if (idxs.length) {
+                        const d = await window.PDFLib.PDFDocument.create();
+                        const pgs = await d.copyPages(src, idxs);
+                        pgs.forEach(p => d.addPage(p));
+                        zip.file(`${name}_split_${r.id}.pdf`, await d.save());
                     }
                 }
             }
-
-            const content = await zip.generateAsync({ type: "blob" });
-            PDFEngine.triggerDownload(content, `${baseName}_split.zip`, 'application/zip');
+            PDFEngine.triggerDownload(await zip.generateAsync({type:"blob"}), `${name}_split.zip`);
             setStatus('idle');
-        } catch (error) {
-            console.error(error);
-            alert("Split failed.");
-            setStatus('error');
-        }
+        } catch(e) { alert("Split failed"); setStatus('error'); }
     };
 
     return (
-        <div className="p-6 md:p-10 animate-fade-in">
-            {!activeFile ? (
-                <label className={`block text-center py-20 bg-slate-50 rounded-2xl border-2 border-dashed border-slate-300 cursor-pointer hover:bg-slate-100 hover:border-primary-400 transition-all group ${!isReady && 'opacity-50'}`}>
-                    <div className="p-4 bg-white rounded-full inline-block mb-4 shadow-sm group-hover:scale-110 transition-transform text-primary-600">
-                        <Icons.Upload className="w-10 h-10" />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-700">Upload PDF to Split</h3>
-                    <p className="text-slate-500 mt-2">Extract specific pages or burst entire document</p>
+        <div className="p-6">
+            {!file ? (
+                <label className={`block text-center py-20 bg-slate-50 border-2 border-dashed border-slate-300 rounded-xl cursor-pointer hover:bg-slate-100 ${!isReady && 'opacity-50'}`}>
+                    <div className="flex justify-center text-slate-400 mb-4"><div className="w-12 h-12"><Icons.Upload /></div></div>
+                    <h3 className="font-bold text-slate-700">Upload PDF to Split</h3>
                     <input type="file" accept=".pdf" className="hidden" onChange={handleUpload} disabled={!isReady} />
                 </label>
             ) : (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="space-y-6">
-                        <Card className="p-5 bg-slate-50 border-slate-200">
-                            <div className="flex items-center gap-3 mb-3">
-                                <div className="p-2.5 bg-white rounded-lg shadow-sm text-primary-600">
-                                    <Icons.Layers className="w-6 h-6" />
-                                </div>
-                                <div className="overflow-hidden">
-                                    <div className="font-bold text-slate-800 truncate">{activeFile.name}</div>
-                                    <div className="text-xs text-slate-500 font-medium">{activeFile.pageCount} Pages • {activeFile.size}</div>
-                                </div>
-                            </div>
-                            <Button variant="danger" size="sm" className="w-full" onClick={() => setActiveFile(null)}>
-                                Close File
-                            </Button>
-                        </Card>
-
-                        <div className="space-y-3">
-                            <Button variant="secondary" className="w-full justify-between group" onClick={() => handleSplit('burst')} isLoading={status === 'processing'}>
-                                <span className="flex items-center gap-2"><Icons.Layers className="w-4 h-4 text-slate-400 group-hover:text-primary-500" /> Burst All Pages</span>
-                                <span className="text-xs text-slate-400">ZIP</span>
-                            </Button>
-                            <Button variant="primary" className="w-full justify-between" onClick={() => handleSplit('custom')} isLoading={status === 'processing'}>
-                                <span className="flex items-center gap-2"><Icons.Download className="w-4 h-4" /> Download Ranges</span>
-                                <span className="text-xs text-primary-200">ZIP</span>
-                            </Button>
+                <div className="flex flex-col gap-6">
+                    <div className="bg-white border p-4 rounded-xl flex justify-between items-center">
+                        <div>
+                            <div className="font-bold">{file.name}</div>
+                            <div className="text-xs text-slate-500">{file.pageCount} Pages</div>
                         </div>
+                        <Button variant="danger" onClick={() => setFile(null)}>Close</Button>
                     </div>
-
-                    <div className="lg:col-span-2">
-                        <Card className="h-full bg-slate-50 p-6">
-                            <div className="flex justify-between items-center mb-6">
-                                <div>
-                                    <h3 className="font-bold text-slate-800">Custom Ranges</h3>
-                                    <p className="text-xs text-slate-500">Define separate PDF files to generate.</p>
+                    <div className="grid grid-cols-2 gap-4">
+                        <Button variant="secondary" onClick={() => handleSplit('burst')} disabled={status === 'processing'}>
+                            {status === 'processing' ? <Icons.Loader /> : <Icons.Layers />} Burst All
+                        </Button>
+                        <Button variant="primary" onClick={() => handleSplit('custom')} disabled={status === 'processing'}>
+                            {status === 'processing' ? <Icons.Loader /> : <Icons.Download />} Download Ranges
+                        </Button>
+                    </div>
+                    <div className="bg-slate-50 p-4 rounded-xl">
+                        <div className="flex justify-between mb-2">
+                            <span className="font-bold text-sm">Ranges</span>
+                            <button onClick={() => setRanges([...ranges, {id: Date.now(), val: ''}])} className="text-primary-600 text-sm font-bold">+ Add</button>
+                        </div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                            {ranges.map(r => (
+                                <div key={r.id} className="flex gap-3">
+                                    <input className="flex-1 border rounded-lg p-2" placeholder="e.g. 1-5" value={r.val} onChange={e => {
+                                        const n = [...ranges]; n.find(x=>x.id===r.id).val = e.target.value; setRanges(n);
+                                    }} />
+                                    <Button variant="ghost" onClick={() => ranges.length > 1 && setRanges(ranges.filter(x => x.id !== r.id))}><Icons.X className="w-4 h-4" /></Button>
                                 </div>
-                                <Button variant="ghost" size="sm" onClick={() => setRanges([...ranges, { id: Date.now(), val: '' }])}>
-                                    <Icons.Plus className="w-4 h-4" /> Add Range
-                                </Button>
-                            </div>
-
-                            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                                {ranges.map((r, i) => (
-                                    <div key={r.id} className="flex items-center gap-3">
-                                        <div className="bg-white border border-slate-200 rounded-lg flex-1 flex items-center px-3 focus-within:ring-2 ring-primary-500 ring-offset-1 transition-all">
-                                            <span className="text-xs font-bold text-slate-400 w-16 uppercase tracking-wide">Range {i + 1}</span>
-                                            <div className="w-px h-6 bg-slate-100 mx-3"></div>
-                                            <input 
-                                                className="flex-1 py-3 bg-transparent text-sm font-medium outline-none text-slate-700 placeholder:text-slate-300"
-                                                placeholder="e.g. 1-5" 
-                                                value={r.val} 
-                                                onChange={e => {
-                                                    const n = [...ranges]; n[i].val = e.target.value; setRanges(n);
-                                                }} 
-                                            />
-                                        </div>
-                                        <Button variant="ghost" onClick={() => ranges.length > 1 && setRanges(ranges.filter(x => x.id !== r.id))} disabled={ranges.length === 1}>
-                                            <Icons.X className="w-4 h-4" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        </Card>
+                            ))}
+                        </div>
                     </div>
                 </div>
             )}
@@ -468,107 +315,72 @@ const SplitFeature = ({ isReady }) => {
     );
 };
 
-/* ========================================================================
-   4. APP SHELL (Layout & Routing)
-   ======================================================================== */
-
+// --- APP SHELL ---
 const App = () => {
-    const [activeTab, setActiveTab] = useState('merge');
-    const [engineStatus, setEngineStatus] = useState('loading');
+    const [tab, setTab] = useState('merge');
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        const checkDependencies = () => {
-            if (window.PDFLib && window.JSZip) {
-                setEngineStatus('ready');
-            } else {
-                requestAnimationFrame(checkDependencies);
-            }
+        const check = () => {
+            if (window.PDFLib && window.JSZip) setReady(true);
+            else requestAnimationFrame(check);
         };
-        checkDependencies();
+        check();
     }, []);
 
     return (
         <div className="min-h-screen flex flex-col">
             <main className="flex-1 max-w-[1600px] mx-auto w-full px-4 py-12 grid grid-cols-1 lg:grid-cols-[260px_1fr_260px] gap-8 items-start">
                 
-                {/* Left Ad Column */}
-                <aside className="hidden lg:flex flex-col gap-4 sticky top-8 h-fit min-h-[600px] bg-white rounded-2xl border border-dashed border-slate-200 items-center justify-center text-slate-400 text-sm font-medium">
-                    Google Ad (160x600)
+                {/* Left Ad */}
+                <aside className="hidden lg:block sticky top-8 h-[600px] bg-white rounded-2xl border border-dashed border-slate-200 overflow-hidden">
+                    <AdUnit slot={AD_SLOT_SIDEBAR} style={{ width: '100%', height: '100%' }} />
                 </aside>
 
-                {/* Main Content Column */}
+                {/* Main Content */}
                 <div className="flex flex-col min-w-0 w-full">
-                    
-                    {/* Mobile Top Ad Placeholder */}
-                    <div className="lg:hidden w-full h-[100px] bg-slate-100 border border-dashed border-slate-300 rounded-xl mb-6 flex items-center justify-center text-slate-400 text-xs">
-                        Google Ad (Mobile)
+                    {/* Mobile Top Ad */}
+                    <div className="lg:hidden w-full h-[100px] bg-slate-100 rounded-xl mb-6 overflow-hidden">
+                        <AdUnit slot={AD_SLOT_MOBILE} style={{ width: '100%', height: '100px' }} />
                     </div>
 
-                    {/* Brand Header */}
                     <header className="text-center mb-10">
-                        <div className="inline-flex p-4 bg-primary-600 rounded-2xl shadow-xl shadow-primary-200 mb-6 transform hover:scale-105 transition-transform duration-300">
-                            <Icons.Layers className="w-10 h-10 text-white" />
-                        </div>
-                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-                            PDF Master Tool
-                        </h1>
-                        <p className="text-lg text-slate-500 max-w-lg mx-auto leading-relaxed">
-                            The professional's choice for secure document manipulation. 
-                            <span className="block text-primary-600 font-medium">Free. Private. Serverless.</span>
-                        </p>
+                        <div className="inline-block p-3 bg-primary-600 rounded-2xl shadow-lg mb-4 text-white"><div className="w-8 h-8"><Icons.Layers /></div></div>
+                        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 mb-4">PDF Master Tool</h1>
+                        <p className="text-lg text-slate-500 max-w-lg mx-auto">Free. Private. Serverless.</p>
                     </header>
 
-                    {/* Feature Navigation */}
                     <nav className="bg-white p-1.5 rounded-2xl shadow-sm border border-slate-100 flex w-full max-w-sm mx-auto mb-8">
-                        {['merge', 'split'].map((tab) => (
-                            <button
-                                key={tab}
-                                onClick={() => setActiveTab(tab)}
-                                className={`flex-1 py-3 rounded-xl text-sm font-bold capitalize flex items-center justify-center gap-2 transition-all duration-300 ${
-                                    activeTab === tab 
-                                    ? 'bg-primary-600 text-white shadow-lg shadow-primary-200 scale-100' 
-                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-                                }`}
-                            >
-                                {tab === 'merge' ? <Icons.Layers className="w-4 h-4" /> : <Icons.Scissors className="w-4 h-4" />}
-                                {tab}
+                        {['merge', 'split'].map(t => (
+                            <button key={t} onClick={() => setTab(t)} className={`flex-1 py-3 rounded-xl text-sm font-bold capitalize flex justify-center gap-2 transition-all ${tab === t ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                {t === 'merge' ? <Icons.Layers className="w-4 h-4" /> : <Icons.Scissors className="w-4 h-4" />} {t}
                             </button>
                         ))}
                     </nav>
 
-                    {/* App Container */}
                     <Card className="min-h-[500px] mb-16 relative">
-                        {activeTab === 'merge' ? 
-                            <MergeFeature isReady={engineStatus === 'ready'} /> : 
-                            <SplitFeature isReady={engineStatus === 'ready'} />
-                        }
+                        {tab === 'merge' ? <MergeFeature isReady={ready} /> : <SplitFeature isReady={ready} />}
                     </Card>
 
-                    {/* Mobile Bottom Ad Placeholder */}
-                    <div className="lg:hidden w-full h-[250px] bg-slate-100 border border-dashed border-slate-300 rounded-xl mb-8 flex items-center justify-center text-slate-400 text-xs">
-                        Google Ad (Mobile Rect)
+                    {/* Mobile Bottom Ad */}
+                    <div className="lg:hidden w-full h-[250px] bg-slate-100 rounded-xl mb-8 overflow-hidden">
+                        <AdUnit slot={AD_SLOT_MOBILE} style={{ width: '100%', height: '250px' }} />
                     </div>
 
-                    {/* Footer / Status Bar */}
                     <footer className="text-center pb-8 flex flex-col items-center gap-4">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border border-slate-200 shadow-sm">
-                            <Badge type={engineStatus === 'ready' ? 'success' : 'loading'}>
-                                {engineStatus === 'ready' ? 'SYSTEM ONLINE' : 'INITIALIZING'}
-                            </Badge>
-                            <span className="text-xs text-slate-400 font-medium ml-2">v2.0.0 Stable</span>
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-white rounded-full border shadow-sm">
+                            <Badge type={ready ? 'success' : 'loading'}>{ready ? 'SYSTEM ONLINE' : 'INITIALIZING'}</Badge>
+                            <span className="text-xs text-slate-400 font-medium ml-2">v2.1 Ad-Ready</span>
                         </div>
                         <div className="text-xs text-slate-400">
-                            &copy; {new Date().getFullYear()} PDF Master. Engineered for privacy.
-                            <span className="mx-2">•</span>
-                            <a href="legal.html" className="hover:text-primary-600 underline transition-colors">Privacy & Terms</a>
+                            &copy; {new Date().getFullYear()} PDF Master. <a href="legal.html" className="underline hover:text-primary-600">Privacy Policy</a>
                         </div>
                     </footer>
-
                 </div>
 
-                {/* Right Ad Column */}
-                <aside className="hidden lg:flex flex-col gap-4 sticky top-8 h-fit min-h-[600px] bg-white rounded-2xl border border-dashed border-slate-200 items-center justify-center text-slate-400 text-sm font-medium">
-                    Google Ad (160x600)
+                {/* Right Ad */}
+                <aside className="hidden lg:block sticky top-8 h-[600px] bg-white rounded-2xl border border-dashed border-slate-200 overflow-hidden">
+                    <AdUnit slot={AD_SLOT_SIDEBAR} style={{ width: '100%', height: '100%' }} />
                 </aside>
 
             </main>
@@ -576,6 +388,5 @@ const App = () => {
     );
 };
 
-// Mount Application
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
