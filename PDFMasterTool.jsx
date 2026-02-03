@@ -7,7 +7,7 @@ const { useState, useEffect, useCallback, useRef } = React;
 
 /* --- ADSENSE CONFIGURATION --- */
 // 1. הדבק כאן את המספר שלך (במקום ה-Xים)
-const AD_PUB_ID = "ca-pub-XXXXXXXXXXXXXXXX"; 
+const AD_PUB_ID = "ca-pub-4733393000264287"; 
 
 // 2. מספרי ה-Slot (תוכל לעדכן אותם כשתקבל אותם מגוגל, כרגע השאר אותם כך)
 const AD_SLOT_SIDEBAR = "1234567890"; 
