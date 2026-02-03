@@ -14,8 +14,9 @@
       gtag('config', 'G-VNCBWFXZ8T');
     </script>
 
-    <!-- 2. GOOGLE ADSENSE (הדבק את המספר שלך כאן למטה!) -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4733393000264287" crossorigin="anonymous"></script>
+    <!-- 2. GOOGLE ADSENSE -->
+    <!-- הקוד הזה יטען אוטומטית גם את באנר ההסכמה (CMP) של גוגל אחרי שתפעיל אותו בלוח הבקרה -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3677463566164285" crossorigin="anonymous"></script>
 
     <!-- 3. Crash Reporter -->
     <script>
@@ -39,36 +40,7 @@
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"></script>
 
-    <!-- 5. Cookie Consent -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.css">
-    <script src="https://cdn.jsdelivr.net/gh/orestbida/cookieconsent@v2.8.9/dist/cookieconsent.js"></script>
-    <script>
-        window.addEventListener('load', function(){
-            var cc = initCookieConsent();
-            cc.run({
-                current_lang: 'en',
-                autoclear_cookies: true,
-                page_scripts: true,
-                gui_options: { consent_modal: { layout: 'cloud', position: 'bottom center', transition: 'slide' } },
-                languages: {
-                    en: {
-                        consent_modal: {
-                            title: 'We use cookies',
-                            description: 'We use cookies to analyze traffic and serve ads.',
-                            primary_btn: { text: 'Accept all', role: 'accept_all' },
-                            secondary_btn: { text: 'Reject', role: 'accept_necessary' }
-                        },
-                        settings_modal: {
-                            title: 'Settings',
-                            save_settings_btn: 'Save',
-                            accept_all_btn: 'Accept all',
-                            blocks: [ { title: 'Usage', description: 'Basic cookies.' } ]
-                        }
-                    }
-                }
-            });
-        });
-    </script>
+    <!-- הוסר: הקוד הידני של Cookie Consent כדי למנוע התנגשות עם ה-CMP של גוגל -->
 
     <style>body { background-color: #F8FAFC; color: #0f172a; font-family: sans-serif; }</style>
 </head>
